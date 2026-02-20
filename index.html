@@ -9,30 +9,41 @@
     content="LearnToBot Summer Camp 2026 — kids build real robotics & coding projects and take home their kit." />
   <title>LearnToBot — Summer Camp 2026</title>
 
-  <!-- Fonts -->
+  <!-- Resource hints: warm up external origins early -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://res.cloudinary.com">
+  <link rel="dns-prefetch" href="https://video.wixstatic.com">
+
+  <!-- Fonts: swap prevents FOIT (invisible text) -->
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@900&display=swap"
-    rel="stylesheet">
+    rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@900&display=swap"
+      rel="stylesheet">
+  </noscript>
 
-  <!-- Icons -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" defer></script>
+  <!-- Icons: CSS delivery is ~3x faster than JS delivery -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print"
+    onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  </noscript>
+
+  <!-- Hero Video Preload: browser starts downloading video early -->
+  <link rel="preload" as="video"
+    href="https://res.cloudinary.com/drr3ss2j7/video/upload/v1771586425/HeroOptimised2_mluy6h.mp4" type="video/mp4">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Leaflet CSS -->
+
+  <!-- Leaflet (loaded ONCE) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
   <script>
     tailwind.config = {
       theme: {
@@ -68,9 +79,14 @@
     }
   </script>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap');
+  <!-- Outfit font loaded via link for non-blocking delivery -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap"
+    media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap">
+  </noscript>
 
+  <style>
     /* ======= SMOOTH SCROLLING ======= */
     html {
       scroll-behavior: smooth;
@@ -1184,8 +1200,10 @@
 
     <!-- Fullscreen Background Video -->
     <div class="absolute inset-0 -z-10">
-      <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
-        <source src="https://video.wixstatic.com/video/cf38b9_5e0de87ad7174dfb89d8d41def05ad1d/1080p/mp4/file.mp4"
+      <!-- preload=auto tells browser to buffer the video immediately -->
+      <video autoplay muted loop playsinline preload="auto" fetchpriority="high"
+        class="absolute inset-0 w-full h-full object-cover">
+        <source src="https://res.cloudinary.com/drr3ss2j7/video/upload/v1771586425/HeroOptimised2_mluy6h.mp4"
           type="video/mp4">
       </video>
       <!-- Dark overlay for text readability -->
