@@ -863,8 +863,8 @@
 
         <!-- Logo -->
         <a href="https://www.learntobot.com/" class="flex items-center gap-3 group">
-          <img src="https://res.cloudinary.com/drr3ss2j7/image/upload/q_auto,f_auto/v1771530035/logo_x5vjnd.png" alt="LearnToBot"
-            class="h-10 w-auto transition-transform group-hover:scale-110">
+          <img src="https://res.cloudinary.com/drr3ss2j7/image/upload/q_auto,f_auto/v1771530035/logo_x5vjnd.png"
+            alt="LearnToBot" class="h-10 w-auto transition-transform group-hover:scale-110">
           <span class="text-2xl font-black tracking-tighter uppercase"
             style="font-family: 'Montserrat', sans-serif;">LearnToBot</span>
         </a>
@@ -2790,20 +2790,29 @@
     const locationAddressText = document.getElementById('locationAddressText');
 
     // ======= TOAST NOTIFICATION =======
-    function showToast(message, type = 'warning') {
+    function showToast(message, type = 'warning', scrollTarget = null) {
       // Remove any existing toast
       const existing = document.getElementById('toast');
       if (existing) existing.remove();
 
       const toast = document.createElement('div');
       toast.id = 'toast';
-      toast.className = `fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce-in ${type === 'warning' ? 'bg-brand-navy text-white' : 'bg-green-500 text-white'
+      toast.className = `fixed left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce-in ${type === 'warning' ? 'bg-red-600 text-white' : 'bg-green-500 text-white'
         }`;
+      // Push below fixed header + extra breathing room
+      toast.style.top = '80px';
       toast.innerHTML = `
-        <i class="fa-solid ${type === 'warning' ? 'fa-circle-exclamation' : 'fa-check-circle'} text-brand-orange"></i>
+        <i class="fa-solid ${type === 'warning' ? 'fa-circle-exclamation' : 'fa-check-circle'} text-white opacity-90"></i>
         <span class="font-bold text-sm">${message}</span>
       `;
       document.body.appendChild(toast);
+
+      // Auto-scroll to scrollTarget if provided
+      if (scrollTarget) {
+        setTimeout(() => {
+          scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
 
       // Auto remove after 3 seconds
       setTimeout(() => {
@@ -3532,7 +3541,7 @@
         const toggleExpand = () => {
           // Check if required filters are selected
           if (!filterLoc.value) {
-            showToast('Please select an Area first');
+            showToast('Please select an Area first', 'warning', filterLoc);
             filterLoc.classList.add('ring-2', 'ring-red-400');
             setTimeout(() => filterLoc.classList.remove('ring-2', 'ring-red-400'), 2000);
             return;
@@ -3564,15 +3573,14 @@
 
           // Only block if we have > 1 active option available to choose from
           if (!selectedSubLocation && activeSubLocs.length > 1) {
-            showToast('Please select a specific location on the map above');
-            // Scroll to map
-            document.getElementById('areaInfoContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const mapEl = document.getElementById('areaInfoContainer');
+            showToast('Please select a specific location on the map above', 'warning', mapEl);
             return;
           }
 
           // Week Check (Secondary)
           if (!filterWeek.value) {
-            showToast('Please select a Week');
+            showToast('Please select a Week', 'warning', filterWeek);
             filterWeek.classList.add('ring-2', 'ring-red-400');
             setTimeout(() => filterWeek.classList.remove('ring-2', 'ring-red-400'), 2000);
             return;
@@ -3659,6 +3667,23 @@
           </div>`;
         return;
       }
+
+      // ---- Sort sessions in logical order: Morning 3D, Afternoon 3D, Full 3D, Morning 5D, Afternoon 5D, Full 5D ----
+      const SESSION_ORDER = [
+        'Morning - 3 Day', 'Afternoon - 3 Day', 'Full Day - 3 Day',
+        'Morning - 5 Day', 'Afternoon - 5 Day', 'Full Day - 5 Day'
+      ];
+      filtered.sort((a, b) => {
+        const nameA = formatServiceName(a['Web Display Service name'] || a['Name (40)'] || a.Name || '');
+        const nameB = formatServiceName(b['Web Display Service name'] || b['Name (40)'] || b.Name || '');
+        const idxA = SESSION_ORDER.indexOf(nameA);
+        const idxB = SESSION_ORDER.indexOf(nameB);
+        // Unknown names go to the end, sorted alphabetically among themselves
+        if (idxA === -1 && idxB === -1) return nameA.localeCompare(nameB);
+        if (idxA === -1) return 1;
+        if (idxB === -1) return -1;
+        return idxA - idxB;
+      });
 
       filtered.forEach(s => {
         const rawSchedule = s.Schedule || s['Tagline (100)'] || '';
