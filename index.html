@@ -5902,7 +5902,7 @@
 
         AREAS = {};
         allServices.forEach(s => {
-          // HYBRID LOGIC: Parse hyphen from Column V if present, otherwise use full value
+          // NEW LOGIC: Column V = Area only, Column O = Sub-location
           // Normalize Location Data:
           // If "Location Picker" (Column V) is empty, use Column C (Area code)
           if (!s['Location Picker'] && s['Area']) {
@@ -5910,13 +5910,8 @@
             s['Location Picker'] = fullArea;
           }
 
-          let areaName = s['Location Picker'];
+          const areaName = s['Location Picker'];
           if (!areaName) return;
-
-          // Parse hyphen if present: "CYPRESS - Location Name" -> "CYPRESS"
-          if (areaName.includes(' - ')) {
-            areaName = areaName.split(' - ')[0].trim();
-          }
 
           // Sub-location comes directly from Column O (Location)
           const subLocName = s['Location'] || areaName;
@@ -6030,14 +6025,10 @@
       // 1. Determine available Camp Titles
       let filteredServices = allServices;
 
-      // Filter by Area (Parse hyphen if present)
+      // Filter by Area (Loose Match)
       if (selectedArea) {
         filteredServices = filteredServices.filter(s => {
-          let rowArea = s['Location Picker'];
-          if (rowArea && rowArea.includes(' - ')) {
-            rowArea = rowArea.split(' - ')[0].trim();
-          }
-          return rowArea === selectedArea;
+          return s['Location Picker'] === selectedArea;
         });
       }
 
@@ -6130,11 +6121,7 @@
       if (activeWeek) {
         // Find which sub-locations actually have camps this week
         const weekServices = allServices.filter(s => {
-          let rowArea = s['Location Picker'];
-          if (rowArea && rowArea.includes(' - ')) {
-            rowArea = rowArea.split(' - ')[0].trim();
-          }
-          return rowArea === areaName && s['Week #'] === activeWeek;
+          return s['Location Picker'] === areaName && s['Week #'] === activeWeek;
         });
 
         activeSubLocNames = new Set(weekServices.map(s => s['Location']));
@@ -6266,11 +6253,7 @@
 
         // 2. Match Area (if selected)
         if (selectedArea) {
-          let rowArea = s['Location Picker'];
-          if (rowArea && rowArea.includes(' - ')) {
-            rowArea = rowArea.split(' - ')[0].trim();
-          }
-          if (rowArea !== selectedArea) return false;
+          if (s['Location Picker'] !== selectedArea) return false;
         }
 
         // 3. Match Week (if selected)
@@ -6299,13 +6282,9 @@
 
       let filteredServices = allServices;
       if (area) {
-        // Filter by Area (parse hyphen if present)
+        // Filter by Area (exact match)
         filteredServices = allServices.filter(s => {
-          let rowArea = s['Location Picker'];
-          if (rowArea && rowArea.includes(' - ')) {
-            rowArea = rowArea.split(' - ')[0].trim();
-          }
-          return rowArea === area;
+          return s['Location Picker'] === area;
         });
       }
 
@@ -6536,11 +6515,7 @@
             // If a week is selected, narrow down to ACTIVE sub-locations for that week
             if (filterWeek.value) {
               const weekServices = allServices.filter(s => {
-                let rowArea = s['Location Picker'];
-                if (rowArea && rowArea.includes(' - ')) {
-                  rowArea = rowArea.split(' - ')[0].trim();
-                }
-                return rowArea === filterLoc.value && s['Week #'] === filterWeek.value;
+                return s['Location Picker'] === filterLoc.value && s['Week #'] === filterWeek.value;
               });
 
               const activeSet = new Set(weekServices.map(s => s['Location']));
@@ -6614,11 +6589,7 @@
       const filtered = allServices.filter(s => {
         // 1. Check Area (if selected)
         if (areaFilter) {
-          let rowArea = s['Location Picker'];
-          if (rowArea && rowArea.includes(' - ')) {
-            rowArea = rowArea.split(' - ')[0].trim();
-          }
-          if (rowArea !== areaFilter) return false;
+          if (s['Location Picker'] !== areaFilter) return false;
         }
 
         // 2. Check SubLocation (if specifically selected via pin/card)
